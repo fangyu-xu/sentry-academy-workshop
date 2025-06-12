@@ -99,7 +99,7 @@ const LoginForm: React.FC = () => {
               loginSignature !== undefined && loginSignature !== null,
           });
 
-          await ssoLogin(provider);
+          await ssoLogin(provider, loginSignature);
         }
       );
 
