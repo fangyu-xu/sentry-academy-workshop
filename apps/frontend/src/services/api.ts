@@ -108,10 +108,28 @@ export const api = {
   // TOFIX Module 3: Broken enrollments missing userId
   enrollments: {
     create: (courseId: string, userId: string | undefined) =>
-      fetchApi<any>("/enrollments", {
-        method: "POST",
-        body: JSON.stringify({ courseId }),
-      }),
+      Sentry.startSpan(
+        {
+          name: "enrollment.create.frontend",
+          op: "http.client",
+          attributes: {
+            "enrollment.course_id": courseId,
+            "enrollment.user_id": userId || "undefined",
+            "enrollment.user_id_provided": !!userId,
+          },
+        },
+        () => {
+          logger.info(
+            logger.fmt`Creating enrollment for course: ${courseId}, user: ${
+              userId || "undefined"
+            }`
+          );
+          return fetchApi<any>("/enrollments", {
+            method: "POST",
+            body: JSON.stringify({ courseId, userId }),
+          });
+        }
+      ),
     getUserEnrollments: (userId: string) =>
       fetchApi<any[]>(`/enrollments/user/${userId}`),
     getProgress: (enrollmentId: string) =>
